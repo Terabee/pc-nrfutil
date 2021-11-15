@@ -148,7 +148,7 @@ class DFUAdapter:
 class DfuTransportSerial(DfuTransport):
 
     DEFAULT_BAUD_RATE = 115200
-    DEFAULT_FLOW_CONTROL = True
+    DEFAULT_FLOW_CONTROL = False
     DEFAULT_TIMEOUT = 30.0  # Timeout time for board response
     DEFAULT_SERIAL_PORT_TIMEOUT = 1.0  # Timeout time on serial port read
     DEFAULT_PRN                 = 0
