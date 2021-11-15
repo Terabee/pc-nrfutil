@@ -187,6 +187,7 @@ class DfuTransportSerial(DfuTransport):
         self.do_ping     = do_ping
 
         self.mtu         = 0
+        self.op_try      = 0
 
         """:type: serial.Serial """
 
@@ -194,10 +195,18 @@ class DfuTransportSerial(DfuTransport):
     def open(self):
         super().open()
         try:
-            self.__ensure_bootloader()
+            #self.__ensure_bootloader()
+            if self.op_try == 2:
+                self.serial_port = Serial(port=self.com_port,
+                    baudrate=self.baud_rate, rtscts=self.flow_control, timeout=self.DEFAULT_SERIAL_PORT_TIMEOUT)
+                self.serial_port.write("!dfu\r\n".encode())
+                print("DFU message sent retry flash a last time")
+                time.sleep(2)
+
             self.serial_port = Serial(port=self.com_port,
                 baudrate=self.baud_rate, rtscts=self.flow_control, timeout=self.DEFAULT_SERIAL_PORT_TIMEOUT)
             self.dfu_adapter = DFUAdapter(self.serial_port)
+
         except OSError as e:
             raise NordicSemiException("Serial port could not be opened on {0}"
               ". Reason: {1}".format(self.com_port, e.strerror))
@@ -215,6 +224,10 @@ class DfuTransportSerial(DfuTransport):
 
         self.__set_prn()
         self.__get_mtu()
+        if self.op_try == 1:
+            print("Try to send DFU trigger message")
+            self.op_try = 2
+            self.open()
 
     def close(self):
         super().close()
@@ -362,8 +375,10 @@ class DfuTransportSerial(DfuTransport):
     def __get_mtu(self):
         self.dfu_adapter.send_message([DfuTransportSerial.OP_CODE['GetSerialMTU']])
         response = self.__get_response(DfuTransportSerial.OP_CODE['GetSerialMTU'])
-
-        self.mtu = struct.unpack('<H', bytearray(response))[0]
+        if self.op_try != 1:
+            self.mtu = struct.unpack('<H', bytearray(response))[0]
+        else:
+            print("  -> No response: device not in DFU or not plugged")
 
     def __ping(self):
         self.ping_id = (self.ping_id + 1) % 256
@@ -482,14 +497,16 @@ class DfuTransportSerial(DfuTransport):
         resp = self.dfu_adapter.get_message()
 
         if not resp:
+            if self.op_try == 0:
+                self.op_try = 1
             return None
 
         if resp[0] != DfuTransportSerial.OP_CODE['Response']:
             raise NordicSemiException('No Response: 0x{:02X}'.format(resp[0]))
 
         if resp[1] != operation:
-            raise NordicSemiException('Unexpected Executed OP_CODE.\n' \
-                             + 'Expected: 0x{:02X} Received: 0x{:02X}'.format(operation, resp[1]))
+                raise NordicSemiException('Unexpected Executed OP_CODE.\n' \
+                                + 'Expected: 0x{:02X} Received: 0x{:02X}'.format(operation, resp[1]))
 
         if resp[2] == DfuTransport.RES_CODE['Success']:
             return resp[3:]

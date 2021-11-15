@@ -1,3 +1,17 @@
+# Fork version to be used for updating Terabee **"follow me 2"** devices
+
+## Usage
+```bash
+nrfutil dfu usb-serial -pkg <firmware.zip> -p <COM_PORT>
+```
+### Example linux
+```bash
+nrfutil dfu usb-serial -pkg firmware.zip -p /dev/ttyUSB0
+```
+
+___
+___
+___
 # nRF Util
 
 [![Latest version](https://img.shields.io/pypi/v/nrfutil.svg)](https://pypi.python.org/pypi/nrfutil)
