@@ -1,5 +1,11 @@
 # Fork version to be used for updating Terabee **"follow me 2"** devices
 
+## Installation
+```bash
+pip install -r requirements-dev.txt
+python setup.py install --user
+```
+
 ## Usage
 ```bash
 nrfutil dfu usb-serial -pkg <firmware.zip> -p <COM_PORT>

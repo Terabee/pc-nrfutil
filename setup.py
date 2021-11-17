@@ -139,7 +139,7 @@ setup(
     version=version.NRFUTIL_VERSION,
     license="Other/Proprietary License",
     author="Nordic Semiconductor ASA",
-    url="https://github.com/NordicSemiconductor/pc-nrfutil",
+    url="https://github.com/Terabee/pc-nrfutil",
     description="Nordic Semiconductor nrfutil utility and Python library",
     long_description=description,
     packages=find_packages(exclude=["tests.*", "tests"]),
