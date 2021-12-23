@@ -1,6 +1,7 @@
 # Fork version to be used for updating Terabee **"follow me 2"** devices
 
 ## Installation
+**Note:** Do not use the `--user` parameter when running `setup.py` script on Windows.
 ```bash
 pip install -r requirements-dev.txt
 python setup.py install --user
